@@ -16,7 +16,7 @@ function App() {
     const contentData = Array.from({ length: rowCount }, (_, rowIndex) => {
         const row: { [key: string]: string } = {};
         headerData.forEach((col, colIndex) => {
-            row[col.id] = `Row ${rowIndex} - Col ${colIndex}`;
+            row[col.id] = ` ${rowIndex + 1} 행 ${colIndex + 1} 열`;
         });
         return row;
     });
