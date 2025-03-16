@@ -45,10 +45,13 @@ function App() {
             style={{
                 width: "100%",
                 height: "calc(100 * var(--vh))",
-                overflow: "auto", // Ensure this allows scrolling
+                overflow: "auto",
             }}
         >
-            <ReactableTable data={data} customStyle={customTableStyle}/>
+            <ReactableTable
+                data={data}
+                customStyle={customTableStyle}
+            />
             {/*<ReactableTable />*/}
         </div>
     </div>
