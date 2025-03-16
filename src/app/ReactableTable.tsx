@@ -50,7 +50,6 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
             window.removeEventListener("resize", handleResize);
         };
     }, []);
-    console.log(viewportHeight)
     const getColumnWidth = (index: number) => columnWidths[index];
 
     return (
@@ -100,7 +99,7 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                                     {header[actualColumnIndex].title}
                                 </div>
                                 <div
-                                    onMouseDown={(e) => handleMouseDown(e, columnIndex)}
+                                    onMouseDown={(e) => handleMouseDown(e,  columnIndex)}
                                     style={{
                                         width: "7px",
                                         height: "100%",

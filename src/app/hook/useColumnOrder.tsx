@@ -6,14 +6,12 @@ export const useColumnOrder = (columnCount: number) => {
 
     const moveColumn = (fromIndex: number, toIndex: number) => {
         setColumnOrder((prevOrder) => {
-            const fromActualIndex = prevOrder.indexOf(fromIndex);
-            const toActualIndex = prevOrder.indexOf(toIndex);
-
-            if (fromActualIndex === -1 || toActualIndex === -1) return prevOrder; // 유효하지 않은 경우 무시
+            if (fromIndex === -1 || toIndex === -1) return prevOrder; // 유효하지 않은 경우 무시
 
             const newOrder = [...prevOrder];
-            const [removed] = newOrder.splice(fromActualIndex, 1);
-            newOrder.splice(toActualIndex, 0, removed);
+            const [removed] = newOrder.splice(fromIndex, 1);
+            newOrder.splice(toIndex, 0, removed);
+            // console.log(newOrder)
             return newOrder;
         });
     };
@@ -31,9 +29,19 @@ export const useColumnOrder = (columnCount: number) => {
         event.preventDefault();
         if (dragStartIndex.current === null) return;
 
-        moveColumn(dragStartIndex.current, dropIndex);
+        const fromIndex = dragStartIndex.current; // 원래 위치 (columnOrder의 index가 아닌, 직접 columnIndex 사용)
+        const toIndex = dropIndex; // 이동하려는 대상 위치
+
+        console.log("From Index:", fromIndex);
+        console.log("To Index:", toIndex);
+        console.log("Before Move:", columnOrder);
+
+        moveColumn(fromIndex, toIndex);
+
+        console.log("After Move:", columnOrder);
         dragStartIndex.current = null;
     };
+
 
     return { columnOrder, setColumnOrder, handleDragStart, handleDragOver, handleDrop };
 };
