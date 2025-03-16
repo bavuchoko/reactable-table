@@ -6,27 +6,31 @@ import { useColumnWidths } from "./hook/useColumnWidths";
 //@ts-ignore
 import { useColumnOrder } from "./hook/useColumnOrder";
 
-
 const defaultColumnWidth = 100;
-const rowHeight = 35;
+const rowHeight = 26;
+
 interface HeaderData {
     id: string;  // Unique key for each column
     title: string; // Displayed column title
 }
 
 interface ContentData {
-    [key: string]: string; // Key-value pairs where the key matches header id
+    [key: string]: string;
 }
 
 interface ReactableTableProps {
     data: {
-        header: HeaderData[]; // Array of header objects
-        content: ContentData[]; // Array of content objects
+        header: HeaderData[];
+        content: ContentData[];
     };
-    customStyle?: React.CSSProperties; // Optional custom styles
+    customStyle?: {
+        headerStyle?: React.CSSProperties;
+        contentStyle?: React.CSSProperties;
+    };
 }
+
 const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) => {
-    const { header, content } = data; // Extract header and content data from props
+    const { header, content } = data;
     const gridRef = useRef<Grid>(null);
     const { columnWidths, handleMouseDown } = useColumnWidths(data.header.length, defaultColumnWidth, gridRef);
     const { columnOrder, handleDragStart, handleDragOver, handleDrop } = useColumnOrder(data.header.length);
@@ -35,7 +39,7 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
     const [viewportHeight, setViewportHeight] = useState<number>(window.innerHeight);
 
 
-    // 화면 크기 변경을 감지하여 업데이트
+
     useEffect(() => {
         const handleResize = () => {
             setViewportWidth(window.innerWidth);
@@ -46,75 +50,21 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
             window.removeEventListener("resize", handleResize);
         };
     }, []);
-
-    // 열 너비를 가져오는 함수
+    console.log(viewportHeight)
     const getColumnWidth = (index: number) => columnWidths[index];
-
-
 
     return (
         <div style={{ width: "100%", height: "100%", overflow: "hidden", position: "relative" }}>
-            {/* 헤더 영역 */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: columnOrder.map((index) => `${columnWidths[index]}px`).join(" "),
-                    // position: "sticky",
-                    top: 0,
-                    background: "#fff",
-                    zIndex: 10
-                }}
-            >
-                {columnOrder.map((index) => (
-
-                    <div
-                        key={index}
-                        style={{ width: columnWidths[index], border: "1px solid black", position: "relative", padding: "2px 0" }}
-                    >
-                        <div
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, index)}
-                            onDragOver={(e) => handleDragOver(e)}
-                            onDrop={(e) => handleDrop(e, index)}
-                        >
-                            {header[index].title}
-                            {/*{`Column ${index + 1}`}*/}
-                        </div>
-
-                        <div
-                            onMouseDown={(e) => handleMouseDown(e, index)}
-                            style={{
-                                width: "7px",
-                                height: "100%",
-                                cursor: "col-resize",
-                                position: "absolute",
-                                right: 0,
-                                top: 0,
-                                bottom: 0,
-                                // backgroundColor: "gray"
-                            }}
-                        >
-                            <div style={{
-                                borderLeft:"1px solid black",
-                                marginLeft:"auto",
-                                width:"3px",
-                                height:"100%",
-                                // background:"red"
-                            }}/>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* 데이터 영역 */}
+            {/* 헤더와 데이터 영역을 하나로 통합 */}
             <Grid
                 ref={gridRef}
                 columnCount={data.header.length}
                 columnWidth={getColumnWidth}
-                height={viewportHeight - rowHeight}
-                rowCount={data.content.length}
+                height={viewportHeight}
+                rowCount={data.content.length + 1}
                 rowHeight={() => rowHeight}
                 width={viewportWidth}
+                overscanCount={20}
                 itemData={columnWidths}
             >
                 {({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
@@ -123,6 +73,58 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                         .slice(0, columnIndex)
                         .reduce((acc, cur) => acc + columnWidths[cur], 0);
 
+                    if (rowIndex === 0) {
+                        // 첫 번째 줄 (헤더 영역)
+                        return (
+                            <div
+                                style={{
+                                    left,
+                                    width: columnWidths[actualColumnIndex],
+                                    border: "1px solid black",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    background:"white",
+                                    position: "absolute",
+                                    top: 0,
+                                    ...customStyle?.headerStyle, // customStyle.headerStyle applied last to override other styles
+                                }}
+                            >
+                                <div
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, columnIndex)}
+                                    onDragOver={(e) => handleDragOver(e)}
+                                    onDrop={(e) => handleDrop(e, columnIndex)}
+                                    style={{padding: "4px"}}
+                                >
+                                    {header[actualColumnIndex].title}
+                                </div>
+                                <div
+                                    onMouseDown={(e) => handleMouseDown(e, columnIndex)}
+                                    style={{
+                                        width: "7px",
+                                        height: "100%",
+                                        cursor: "col-resize",
+                                        position: "absolute",
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        // backgroundColor: "gray"
+                                    }}
+                                >
+                                    <div style={{
+                                        borderLeft: "1px solid black",
+                                        marginLeft: "auto",
+                                        width: "3px",
+                                        height: "100%",
+                                        // background:"red"
+                                    }}/>
+                                </div>
+                            </div>
+                        );
+                    }
+
+                    // 데이터 영역
                     return (
                         <div
                             style={{
@@ -136,12 +138,10 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                                 background: rowIndex % 2 === 0 ? "#f9f9f9" : "#fff"
                             }}
                         >
-                            {data.content[actualColumnIndex][header[actualColumnIndex].id]}
-                            {/*{`R${rowIndex}, C${actualColumnIndex}`}*/}
+                            {content[rowIndex - 1][header[actualColumnIndex].id]}
                         </div>
                     );
                 }}
-
             </Grid>
         </div>
     );
