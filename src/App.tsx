@@ -1,19 +1,55 @@
 import React from 'react';
 import './App.css';
 import ReactableTable from "./app/ReactableTable";
+import {ContentData, HeaderData} from "@/app/type/types";
 
 function App() {
 
     const columnCount = 100;
     const rowCount = 2000;
 
-    const headerData = Array.from({ length: columnCount }, (_, index) => ({
+    const DateEditor: React.FC<{
+        value: string;
+        onChange: (event: React.ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => void;
+        rowIndex: number;
+        columnIndex: number;
+    }> = ({ value, onChange, rowIndex, columnIndex }) => {
+        const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            console.log(rowIndex);
+            console.log(columnIndex);
+            console.log(event.currentTarget.value);
+            onChange(event, rowIndex, columnIndex);  // 추가 인자 전달
+        };
+
+        return (
+            <input
+                type="date"
+                value={value}
+                onChange={handleDateChange}  // handleDateChange를 onChange로 사용
+                style={{
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    textAlign: "center",
+                    background: "white",
+                }}
+            />
+        );
+    };
+
+
+
+
+
+    const headerData:HeaderData[] = Array.from({ length: columnCount }, (_, index) => ({
         id: `column_${index}`,
-        title: `Column ${index + 1}`
+        title: `Column ${index + 1}`,
+        renderEditCell: index === 2 ? DateEditor : undefined,
+
     }));
 
 // 2000개의 행 생성
-    const contentData = Array.from({ length: rowCount }, (_, rowIndex) => {
+    const contentData: ContentData[] = Array.from({ length: rowCount }, (_, rowIndex) => {
         const row: { [key: string]: string } = {};
         headerData.forEach((col, colIndex) => {
             row[col.id] = ` ${rowIndex + 1} 행 ${colIndex + 1} 열`;

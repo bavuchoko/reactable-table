@@ -5,29 +5,12 @@ import { VariableSizeGrid as Grid } from "react-window";
 import { useColumnWidths } from "./hook/useColumnWidths";
 //@ts-ignore
 import { useColumnOrder } from "./hook/useColumnOrder";
+import { useCellEditing } from "./hook/useCellEditing"
+import {ContentData, HeaderData, ReactableTableProps} from "@/app/type/types";
 
 const defaultColumnWidth = 100;
 const rowHeight = 26;
 
-interface HeaderData {
-    id: string;
-    title: string;
-}
-
-interface ContentData {
-    [key: string]: string;
-}
-
-interface ReactableTableProps {
-    data: {
-        header: HeaderData[];
-        content: ContentData[];
-    };
-    customStyle?: {
-        headerStyle?: React.CSSProperties;
-        contentStyle?: React.CSSProperties;
-    };
-}
 
 const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) => {
     const { header, content } = data;
@@ -37,10 +20,14 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
 
     const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
     const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-    const contentDataRef = useRef<ContentData[]>(content);
 
-    const editingCell = useRef<{ row: number; col: number } | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
+    const {
+        editingCell,
+        inputRef,
+        handleCellClick,
+        handleBlur,
+        handleInputChange,
+    } = useCellEditing(content, header, columnOrder, columnWidths, gridRef);
 
     useEffect(() => {
         const handleResize = () => {
@@ -55,26 +42,11 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
 
     const getColumnWidth = useCallback((index: number) => columnWidths[index], [columnWidths]);
 
-    const handleCellClick = useCallback((rowIndex: number, columnIndex: number) => {
-        if (rowIndex === 0) return;
-        editingCell.current = { row: rowIndex - 1, col: columnIndex };
-        gridRef.current?.resetAfterIndices({ rowIndex, columnIndex });
-    }, []);
-
-    const handleBlur = useCallback(() => {
-        editingCell.current = null;
-        gridRef.current?.resetAfterIndices({ rowIndex: 0, columnIndex: 0 });
-    }, []);
-
-    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => {
-        contentDataRef.current[rowIndex][header[columnOrder[columnIndex]].id] = e.target.value;
-        gridRef.current?.resetAfterIndices({ rowIndex: rowIndex + 1, columnIndex });
-    }, [columnOrder, header]);
-
 
     const Cell = memo(({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
         const actualColumnIndex = columnOrder[columnIndex];
         const left = columnOrder.slice(0, columnIndex).reduce((acc, cur) => acc + columnWidths[cur], 0);
+        const columnKey = header[actualColumnIndex].id;
 
         if (rowIndex === 0) {
             return (
@@ -125,7 +97,12 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                 </div>
             );
         }
-
+        const rowIndexAdjusted = rowIndex - 1;
+        const rowData = content[rowIndexAdjusted];
+        const customEditor = header[actualColumnIndex].renderEditCell;
+        const customRenderer = header[actualColumnIndex].renderEditCell;
+        // @ts-ignore
+        // @ts-ignore
         return (
             <div
                 style={{
@@ -141,24 +118,47 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                 }}
                 onClick={() => handleCellClick(rowIndex, columnIndex)}
             >
-                {editingCell.current?.row === rowIndex - 1 && editingCell.current?.col === columnIndex ? (
-                    <input
-                        ref={inputRef}
-                        autoFocus
-                        defaultValue={contentDataRef.current[rowIndex - 1][header[actualColumnIndex].id] || ""}
-                        onChange={(e) => handleInputChange(e, rowIndex - 1, columnIndex)}
-                        onBlur={handleBlur}
-                        onKeyDown={(e) => e.key === "Enter" && handleBlur()}
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            border: "none",
-                            textAlign: "center",
-                            background: "white",
-                        }}
-                    />
+                {editingCell.current?.row === rowIndexAdjusted && editingCell.current?.col === columnIndex ? (
+                    customEditor ? (
+                        customEditor({
+                            value: rowData[columnKey] || "",
+                            onChange: (e) =>{
+                                console.log(e)
+                                handleInputChange(e , rowIndexAdjusted, columnIndex)
+                            },
+                            rowIndex: rowIndexAdjusted,
+                            columnIndex: columnIndex,
+                        })
+
+                    ) : (
+                        <input
+                            ref={inputRef}
+                            autoFocus
+                            defaultValue={rowData[columnKey] || ""}
+                            onChange={(e) => handleInputChange(e, rowIndexAdjusted, columnIndex)}
+                            onBlur={handleBlur}
+                            onKeyDown={(e) => e.key === "Enter" && handleBlur()}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                border: "none",
+                                textAlign: "center",
+                                background: "white",
+                            }}
+                        />
+                    )
+                ) : customRenderer ? (
+                    customRenderer({
+                        value: rowData[columnKey] || "",
+                        onChange: (e) =>{
+                            console.log(e)
+                            handleInputChange(e , rowIndexAdjusted, columnIndex)
+                        },
+                        rowIndex: rowIndexAdjusted,
+                        columnIndex: columnIndex,
+                    })
                 ) : (
-                    contentDataRef.current[rowIndex - 1][header[actualColumnIndex].id]
+                    rowData[columnKey]
                 )}
             </div>
         );
@@ -171,7 +171,7 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                 columnCount={data.header.length}
                 columnWidth={getColumnWidth}
                 height={viewportHeight}
-                rowCount={contentDataRef.current.length + 1}
+                rowCount={content.length + 1}
                 rowHeight={() => rowHeight}
                 width={viewportWidth}
                 overscanCount={2}
