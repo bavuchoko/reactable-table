@@ -6,7 +6,7 @@ import { useColumnWidths } from "./hook/useColumnWidths";
 //@ts-ignore
 import { useColumnOrder } from "./hook/useColumnOrder";
 import { useCellEditing } from "./hook/useCellEditing"
-import {ContentData, HeaderData, ReactableTableProps} from "@/app/type/types";
+import { ReactableTableProps} from "@/app/type/types";
 
 const defaultColumnWidth = 100;
 const rowHeight = 26;
