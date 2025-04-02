@@ -5,9 +5,7 @@ export interface HeaderData {
     title: string;
     renderEditCell?: FC<{
         value: string;
-        onChange: (event: ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => void;
-        rowIndex: number;
-        columnIndex: number;
+        onChange: (event: ChangeEvent<HTMLInputElement>) => void;
     }>;
 }
 

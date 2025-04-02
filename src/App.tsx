@@ -10,15 +10,10 @@ function App() {
 
     const DateEditor: React.FC<{
         value: string;
-        onChange: (event: React.ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => void;
-        rowIndex: number;
-        columnIndex: number;
-    }> = ({ value, onChange, rowIndex, columnIndex }) => {
+        onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    }> = ({ value, onChange}) => {
         const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            console.log(rowIndex);
-            console.log(columnIndex);
-            console.log(event.currentTarget.value);
-            onChange(event, rowIndex, columnIndex);  // 추가 인자 전달
+            onChange(event);  // 추가 인자 전달
         };
 
         return (

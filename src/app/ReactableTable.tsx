@@ -123,11 +123,8 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                         customEditor({
                             value: rowData[columnKey] || "",
                             onChange: (e) =>{
-                                console.log(e)
                                 handleInputChange(e , rowIndexAdjusted, columnIndex)
                             },
-                            rowIndex: rowIndexAdjusted,
-                            columnIndex: columnIndex,
                         })
 
                     ) : (
@@ -151,11 +148,8 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                     customRenderer({
                         value: rowData[columnKey] || "",
                         onChange: (e) =>{
-                            console.log(e)
                             handleInputChange(e , rowIndexAdjusted, columnIndex)
-                        },
-                        rowIndex: rowIndexAdjusted,
-                        columnIndex: columnIndex,
+                        }
                     })
                 ) : (
                     rowData[columnKey]
