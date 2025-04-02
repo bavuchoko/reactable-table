@@ -1,6 +1,6 @@
 # ReactableTable
 
-A customizable, resizable, and movable table component for React.
+React용으로 커스터마이징 가능하고 크기 조정 및 이동이 가능한 테이블 컴포넌트입니다.
 
 ## 📌 Props
 
@@ -23,10 +23,10 @@ interface ReactableTableProps {
 
 | Prop           | Type                                         | Required | Description |
 |---------------|--------------------------------------------|----------|-------------|
-| `data`        | `{ header: HeaderData[]; content: ContentData[]; }` | ✅ | Table data containing headers and content. |
-| `customStyle` | `{ headerStyle?: React.CSSProperties; contentStyle?: React.CSSProperties; }` | ❌ | Custom styles for header and content. |
-| `resizable`   | `boolean`                                   | ❌ | Enables column resizing. Default: `false`. |
-| `movable`     | `boolean`                                   | ❌ | Enables column dragging and reordering. Default: `false`. |
+| `data`        | `{ header: HeaderData[]; content: ContentData[]; }` | ✅ | 테이블 데이터 (헤더와 내용 포함). |
+| `customStyle` | `{ headerStyle?: React.CSSProperties; contentStyle?: React.CSSProperties; }` | ❌ | 헤더와 내용에 대한 커스터마이즈 스타일. |
+| `resizable`   | `boolean`                                   | ❌ | 열 크기 조정 가능 여부. 기본값: `false`. |
+| `movable`     | `boolean`                                   | ❌ | 열 이동 및 재정렬 가능 여부. 기본값: `false`. |
 
 ---
 
@@ -47,11 +47,11 @@ interface HeaderData {
 
 | Property        | Type    | Required | Description |
 |---------------|--------|----------|-------------|
-| `id`         | `string` | ✅ | Unique identifier for the column. |
-| `title`      | `string` | ✅ | Column title displayed in the table header. |
-| `renderEditCell` | `FC<{ value: string; onChange: (event: ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => void; rowIndex: number; columnIndex: number; }>` | ❌ | Custom component to render an editable cell. |
+| `id`         | `string` | ✅ | 열의 고유 식별자. |
+| `title`      | `string` | ✅ | 테이블 헤더에 표시될 열 제목. |
+| `renderEditCell` | `FC<{ value: string; onChange: (event: ChangeEvent<HTMLInputElement>, rowIndex: number, columnIndex: number) => void; rowIndex: number; columnIndex: number; }>` | ❌ | 수정 가능한 셀을 렌더링하는 커스텀 컴포넌트. |
 
-#### 🔹 Example usage of `renderEditCell`
+#### 🔹 `renderEditCell` 사용 예시
 
 ```tsx
 const MyEditCell: FC<{ 
@@ -76,9 +76,9 @@ interface ContentData {
 }
 ```
 
-Each row in the table is represented as an object where keys correspond to `HeaderData.id`.
+테이블의 각 행은 객체로 표현되며, 객체의 키는 HeaderData.id와 일치합니다.
 
-#### 🔹 Example content data:
+#### 🔹  예시 콘텐츠 데이터:
 
 ```json
 [
@@ -89,7 +89,7 @@ Each row in the table is represented as an object where keys correspond to `Head
 
 ---
 
-## 🛠️ Example Usage
+## 🛠️ 사용예시
 
 ```tsx
 const tableData = {
