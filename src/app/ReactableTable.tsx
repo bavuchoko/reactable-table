@@ -74,7 +74,7 @@ const ReactableTable: React.FC<ReactableTableProps> = ({ data, customStyle }) =>
                         {header[actualColumnIndex].title}
                     </div>
                     <div
-                        onMouseDown={(e) => handleMouseDown(e, columnIndex)}
+                        onMouseDown={(e) => handleMouseDown(e, columnOrder[columnIndex])}
                         style={{
                             width: "7px",
                             height: "100%",
